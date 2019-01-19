@@ -10,6 +10,7 @@ const Vision = require('vision');
 const Inert = require('inert');
 const AuthBearer = require('hapi-auth-bearer-token');
 const bearerValidation = require('./src/libs/bearerValidation');
+const Logger = require('./src/libs/Logger');
 
 const config = require('./config');
 const Package = require('./package');
@@ -23,8 +24,9 @@ const swaggerOptions = {
   },
 };
 
-async function createServer() {
+async function createServer(logLVL='info') {
   const server = await new Hapi.Server(config.server);
+  const logger = new Logger(logLVL, 'Gate-Server-Betta');
 
   await server.register([
     AuthBearer,
@@ -67,11 +69,29 @@ async function createServer() {
     }
   });
   
+  server.events.on('response', (request) => {
+    logger.log('info', 'route', {
+      method: request.route.method,
+      url: request.url.href,
+      statusCode: request.raw.res.statusCode,
+      remoteAddr: request.headers[ 'x-real-ip' ],
+      referrer: request.info.referrer
+    });
+  });
+  
+  process.on('unhandledRejection', (err) => {
+    logger.log('error', 'app', JSON.stringify(err));
+    // server have to crash on this error
+    process.exit(1);
+  });
+  
   try {
     await server.start();
-    console.log(`Server running at: ${server.info.uri}`);
+    logger.log('info', 'app', `Server running at: ${server.info.uri}`);
   } catch(err) {
-    console.log(JSON.stringify(err));
+    logger.log('error', 'app', JSON.stringify(err));
+    // server have to crash on this error
+    process.exit(1);
   }
 
   return server;

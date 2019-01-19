@@ -6,7 +6,7 @@ function parseQueryParams(queryParams) {
   if( typeof(queryParams.__count) != 'undefined' )
     result.limit = queryParams.__count;
 
-  if( typeof(queryParams.__order) != 'undefined' )
+  if( (typeof(queryParams.__order) != 'undefined') && result.order )
     result.order = [ queryParams.__order.split(' ') ];
   
   return result;
