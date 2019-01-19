@@ -1,16 +1,12 @@
  
 const Joi = require('joi');
-let crypto = require('crypto');
 
 const responsSchemes = require('../../libs/responsSchemes');
+const verify = require('../../libs/verify');
  
 async function response(request) {
 
-  const verify = crypto.createVerify('RSA-SHA1');
-  verify.update(request.payload.payload);
-  verify.end();
-  
-  let result = verify.verify(request.payload.public_key, request.payload.signature, 'hex');
+  let result = verify.validateData(request.payload.payload, request.payload.signature, request.payload.public_key)
 
   return {
     meta: {

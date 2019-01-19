@@ -1,14 +1,25 @@
 
 const Joi = require('joi');
 let crypto = require('crypto');
+const NodeRSA = require('node-rsa');
 
 const responsSchemes = require('../../libs/responsSchemes');
 
 async function response(request) {
-
-  let sign = crypto.createSign('RSA-SHA1');
-  sign.update(request.payload.data);
-  let sig = sign.sign(request.payload.privKey, 'hex');
+  
+  let _privateKey = new NodeRSA({}, null, {
+    signingScheme: {
+        hash: 'sha1'
+    }
+});
+  
+  try {
+    _privateKey.importKey(Buffer.from(request.payload.privKey, 'hex'), 'pkcs8-private-der');
+  } catch(err) {
+    console.log('ERR:', err);
+  }
+  
+  let sig = _privateKey.sign(Buffer.from(request.payload.data, 'hex'), 'hex');
 
   return {
     meta: {
@@ -17,13 +28,13 @@ async function response(request) {
       offset: 0,
       error: null
     },
-    data: [ sig ]
+    data: sig
   };
 }
 
 const responseScheme = Joi.object({
   meta: responsSchemes.meta,
-  data: Joi.array().items( Joi.string().example('dlfknskjdfbjk') )
+  data: Joi.string().example('dlfknskjdfbjk')
 });
 
 module.exports = {

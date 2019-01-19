@@ -1,26 +1,10 @@
  
 const Joi = require('joi');
 const Boom = require('boom');
-let crypto = require('crypto');
 
+const verify = require('../../libs/verify');
 const responsSchemes = require('../../libs/responsSchemes');
 const staxLib = require('../../libs/stax');
-
-function validateData(data, sign, pub_key) {
-  const verify = crypto.createVerify('RSA-SHA1');
-  verify.update(data);
-  verify.end();
-  
-  let result = false;
-  
-  try {
-    result = verify.verify(pub_key, sign, 'hex');
-  } catch(err) {
-    console.log('ERR:', err);
-  }
-  
-  return result;
-}
  
 async function response(request) {
   
@@ -33,7 +17,7 @@ async function response(request) {
     throw Boom.notFound('Device not found');
   }
   
-  if( !validateData(request.payload.message, request.payload.signature, curDevice.dataValues.public_key) ) {
+  if( !verify.validateData(request.payload.message, request.payload.signature, curDevice.dataValues.public_key) ) {
     throw Boom.badRequest('Signature is invalid');
   }
 
