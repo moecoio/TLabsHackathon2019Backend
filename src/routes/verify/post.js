@@ -29,7 +29,7 @@ module.exports = {
   path: '/verify',
   options: {
     handler: response,
-    description: 'Add device pubic key',
+    description: 'Verify signature',
     tags: ['api'],
     auth: false,
     validate: {
@@ -37,7 +37,7 @@ module.exports = {
         public_key: Joi.string().required().example('qweqweqwqwqwr'),
         payload: Joi.string().required().example('Lorem ipsum'),
         signature: Joi.string().required().example('asdasdasd')
-    }
+      }
     },
     response: { schema: responseScheme } 
   }

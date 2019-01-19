@@ -7,7 +7,6 @@ const metaSchema = Joi.object({
   error: Joi.any().example('null')
 });
 
-
 module.exports = {
   meta: metaSchema,
 };

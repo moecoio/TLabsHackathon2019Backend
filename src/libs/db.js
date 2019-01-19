@@ -13,7 +13,6 @@ function main() {
 
   let sequelize = new Sequelize(config.db);
 
-  // Загружаем все наши модельки
   for(let modelFile of filepaths.getSync(__dirname + '/../models')) 
     require(modelFile)(sequelize, Sequelize.DataTypes);
 

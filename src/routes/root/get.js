@@ -11,7 +11,7 @@ module.exports = {
   path: '/',
   options: {
     handler: response,
-    tags: ['api'], // Necessary tag for swagger
+    tags: ['api'],
     validate: {
     }
   }

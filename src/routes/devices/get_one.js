@@ -1,30 +1,42 @@
- 
+
 const Joi = require('joi');
+const Boom = require('boom');
+
 const responsSchemes = require('../../libs/responsSchemes');
 const staxLib = require('../../libs/stax');
- 
+
 async function response(request) {
   
   const devices = request.getModel(request.server.config.db.database, 'devices');
-  let curDate = new Date();
   
-  let stax_id = await staxLib.addPublicKey(request.payload.device_id, request.payload.public_key, curDate);
+  let dbDevice = await devices.findOne({ where: {device_id: request.params.device_id} });
   
-  let newDevice = Object.assign({}, request.payload);
-  newDevice.createdAt = curDate;
-  newDevice.updatedAt = curDate;
-  newDevice.stax_id = stax_id;
+  if( !dbDevice ) {
+    throw Boom.notFound('Not found in hot cache');
+  }
   
-  let newDbRecord = await devices.create(newDevice);
-
+  let staxData;
+  
+  try {
+    staxData = await staxLib.getPublicKey(dbDevice.dataValues.stax_id);
+  } catch(err) {
+    // not found
+  }
+  
+  if( !staxData ) {
+    throw Boom.notFound('Not found in blockchain');
+  }
+  
+  console.log('dbDevice::', dbDevice.dataValues);
+  
   return {
     meta: {
-      total: 0,
-      count: 0,
+      total: 1,
+      count: 1,
       offset: 0,
       error: null
     },
-    data: [ newDbRecord.dataValues ]
+    data: [ dbDevice.dataValues ]
   };
 }
 
@@ -42,20 +54,17 @@ const responseScheme = Joi.object({
 });
 
 module.exports = {
-  method: 'POST',
-  path: '/devices',
+  method: 'GET',
+  path: '/devices/{device_id}',
   options: {
     handler: response,
-    description: 'Add device',
+    description: 'Get device by device_id',
     tags: ['api'],
-    auth: false,
     validate: {
-      payload: {
-        device_id: Joi.string().required().example('aa:bb:cc:ee'),
-        public_key: Joi.string().required().example('qweqweqwqwqwr')
+      params: {
+        device_id: Joi.string().required().example('asdqwerty')
       }
     },
     response: { schema: responseScheme } 
   }
-};
- 
+}; 

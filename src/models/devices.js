@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     device_id: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true
     },
     public_key: {
       type: DataTypes.STRING,

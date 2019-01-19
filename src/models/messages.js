@@ -9,11 +9,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.INTEGER
     },
-    user_id: {
-      type: DataTypes.INTEGER,
+    device_id: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    message: {
+    stax_id: {
       type: DataTypes.STRING,
       allowNull: false,
     }
@@ -22,13 +22,8 @@ module.exports = (sequelize, DataTypes) => {
   messages.dummyData = [
     {
       id: 1,
-      user_id: 1,
-      message: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat'
-    },
-    {
-      id: 2,
-      user_id: 1,
-      message: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo'
+      device_id: 'aa:bb:cc',
+      stax_id: 'asdfghjl'
     }
   ];
 
