@@ -1,13 +1,25 @@
  
 const Joi = require('joi');
 const Boom = require('boom');
+let crypto = require('crypto');
 
 const responsSchemes = require('../../libs/responsSchemes');
 const staxLib = require('../../libs/stax');
 
 function validateData(data, sign, pub_key) {
+  const verify = crypto.createVerify('RSA-SHA1');
+  verify.update(data);
+  verify.end();
   
-  return true;
+  let result = false;
+  
+  try {
+    result = verify.verify(pub_key, sign, 'hex');
+  } catch(err) {
+    console.log('ERR:', err);
+  }
+  
+  return result;
 }
  
 async function response(request) {
@@ -24,14 +36,20 @@ async function response(request) {
   if( !validateData(request.payload.message, request.payload.signature, curDevice.dataValues.public_key) ) {
     throw Boom.badRequest('Signature is invalid');
   }
-  
+
   let newMessage = Object.assign({}, request.payload);
   let curDate = new Date();
   
   newMessage.public_key = curDevice.dataValues.public_key;
   newMessage.createdAt = curDate;
+
+  let stax_id;
   
-  let stax_id = await staxLib.addMessage(newMessage);
+  try {
+    stax_id = await staxLib.addMessage(newMessage);
+  } catch(err) {
+    throw Boom.badImplementation('Stax gate error');
+  }
   
   let dbMessage = {
     stax_id: stax_id,

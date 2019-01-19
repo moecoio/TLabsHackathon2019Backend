@@ -6,7 +6,7 @@ const responsSchemes = require('../../libs/responsSchemes');
 
 async function response(request) {
 
-  let sign = crypto.createSign('RSA-SHA256');
+  let sign = crypto.createSign('RSA-SHA1');
   sign.update(request.payload.data);
   let sig = sign.sign(request.payload.privKey, 'hex');
 

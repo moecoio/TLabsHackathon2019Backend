@@ -6,7 +6,7 @@ const responsSchemes = require('../../libs/responsSchemes');
  
 async function response(request) {
 
-  const verify = crypto.createVerify('RSA-SHA256');
+  const verify = crypto.createVerify('RSA-SHA1');
   verify.update(request.payload.payload);
   verify.end();
   
