@@ -6,6 +6,7 @@ module.exports = {
     host: '0.0.0.0',
     port: 3030
   },
+  tmpDir: '/opt/TLabsHackathon2019Backend/tmp',
   db: {
     username: 'root',
     password: null,

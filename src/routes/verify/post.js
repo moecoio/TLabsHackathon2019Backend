@@ -1,12 +1,16 @@
  
 const Joi = require('joi');
+let crypto = require('crypto');
+
 const responsSchemes = require('../../libs/responsSchemes');
  
 async function response(request) {
+
+  const verify = crypto.createVerify('RSA-SHA256');
+  verify.update(request.payload.payload);
+  verify.end();
   
-  //const messages = request.getModel(request.server.config.db.database, 'messages');
-  
-  let result = true;
+  let result = verify.verify(request.payload.public_key, request.payload.signature, 'hex');
 
   return {
     meta: {
