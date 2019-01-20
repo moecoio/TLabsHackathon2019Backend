@@ -9,7 +9,8 @@ function validateData(data, sign, pub_key) {
   });
   
   const _signature = Buffer.from(sign, 'hex');
-  const _data = Buffer.from(data, 'hex');
+  //const _data = Buffer.from(data, 'hex');
+  const _data = data;
   
   const verify = crypto.createVerify('RSA-SHA1');
   verify.update(_data);

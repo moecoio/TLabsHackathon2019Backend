@@ -11,7 +11,7 @@ async function response(request) {
     signingScheme: {
         hash: 'sha1'
     }
-});
+  });
   
   try {
     _privateKey.importKey(Buffer.from(request.payload.privKey, 'hex'), 'pkcs8-private-der');
@@ -19,7 +19,8 @@ async function response(request) {
     console.log('ERR:', err);
   }
   
-  let sig = _privateKey.sign(Buffer.from(request.payload.data, 'hex'), 'hex');
+  //let sig = _privateKey.sign(Buffer.from(request.payload.data, 'hex'), 'hex');
+  let sig = _privateKey.sign(request.payload.data, 'hex');
 
   return {
     meta: {
