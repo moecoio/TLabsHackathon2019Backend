@@ -1,10 +1,29 @@
  
 const Joi = require('joi');
 const Boom = require('boom');
+var moment = require('moment');
 
 const verify = require('../../libs/verify');
 const responsSchemes = require('../../libs/responsSchemes');
 const staxLib = require('../../libs/stax');
+
+const getFromStax = async function(stax_id) {
+  let staxData;
+  
+  try {
+    staxData = await staxLib.getMessage(stax_id);
+  } catch(err) {
+    console.log('stax error', err);
+  }
+
+  if( !staxData ) {
+    console.warn('Transaction not found in Stax', stax_id);
+    return false;
+  }
+
+  staxData.stax_id = stax_id;
+  return staxData;
+}
  
 async function response(request) {
   
@@ -15,6 +34,21 @@ async function response(request) {
   
   if( !curDevice ) {
     throw Boom.notFound('Device not found');
+  }
+
+  // throttling
+  let lastMessageDb = await messages.findAll({
+    limit: 1,
+    where: { device_id: request.payload.device_id },
+    order: [[ 'id', 'DESC' ]]
+  });
+
+  if (lastMessageDb) {
+    let lastMessage = await getFromStax(lastMessageDb[0].dataValues.stax_id);
+    console.log(lastMessage.createdAt);
+    if (moment().diff(moment(lastMessage.createdAt), 'seconds') < 5) {
+      throw Boom.tooManyRequests('You have exceeded your request limit');
+    }
   }
   
   if( !verify.validateData(request.payload.message, request.payload.signature, curDevice.dataValues.public_key) ) {
